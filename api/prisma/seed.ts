@@ -1,6 +1,11 @@
 import { PrismaClient, Role } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+
+// Development-only credentials for the two seeded accounts.
+// Override with SEED_PASSWORD in .env; never reuse these in production.
+const SEED_PASSWORD = process.env.SEED_PASSWORD ?? 'Password123!';
 
 const genres = [
   { name: 'Fiction', slug: 'fiction' },
@@ -75,16 +80,28 @@ async function main() {
     });
   }
 
-  // Users (one of each role)
+  // Users (one of each role). Public registration only creates PATRONs,
+  // so the seeded librarian is how you get a LIBRARIAN token in development.
+  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);
   const librarian = await prisma.user.upsert({
     where: { email: 'librarian@library.test' },
     update: {},
-    create: { email: 'librarian@library.test', name: 'Lydia Librarian', role: Role.LIBRARIAN },
+    create: {
+      email: 'librarian@library.test',
+      name: 'Lydia Librarian',
+      password: passwordHash,
+      role: Role.LIBRARIAN,
+    },
   });
   const patron = await prisma.user.upsert({
     where: { email: 'patron@library.test' },
     update: {},
-    create: { email: 'patron@library.test', name: 'Peter Patron', role: Role.PATRON },
+    create: {
+      email: 'patron@library.test',
+      name: 'Peter Patron',
+      password: passwordHash,
+      role: Role.PATRON,
+    },
   });
 
   // Stretch: a couple of sample reviews

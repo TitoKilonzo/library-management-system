@@ -1,11 +1,16 @@
-import 'reflect-metadata';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-async function bootstrap(): Promise<void> {
+async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = Number(process.env.PORT) || 3000;
-  await app.listen(port);
-}
 
-void bootstrap();
+  // Validate every request body against its DTO and strip undeclared fields.
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+  // Allow the frontend (a different origin) to call this API.
+  app.enableCors();
+
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
