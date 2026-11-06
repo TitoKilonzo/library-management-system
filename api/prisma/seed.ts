@@ -85,7 +85,7 @@ async function main() {
   const passwordHash = await bcrypt.hash(SEED_PASSWORD, 10);
   const librarian = await prisma.user.upsert({
     where: { email: 'librarian@library.test' },
-    update: {},
+    update: { password: passwordHash },
     create: {
       email: 'librarian@library.test',
       name: 'Lydia Librarian',
@@ -95,7 +95,7 @@ async function main() {
   });
   const patron = await prisma.user.upsert({
     where: { email: 'patron@library.test' },
-    update: {},
+    update: { password: passwordHash },
     create: {
       email: 'patron@library.test',
       name: 'Peter Patron',

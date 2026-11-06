@@ -39,30 +39,22 @@ nest new api
 
 # 2. Install dependencies
 cd api
-npm install @nestjs/config @nestjs/passport @nestjs/jwt @nestjs/throttler @nestjs/mapped-types \
-  passport passport-jwt bcrypt class-validator class-transformer @prisma/client@6
-npm install -D prisma@6 @types/passport-jwt @types/bcrypt ts-node
+npm install
 
 # 3. Configure environment
 cp .env.example .env     # set DATABASE_URL and JWT_SECRET
 
 # 4. Migrate and seed
-npx prisma migrate dev --name init
+npx prisma migrate dev
 npx prisma db seed
 
 # 5. Run
 npm run start:dev
 ```
 
-Add this to `api/package.json` so `prisma db seed` knows how to run the script:
+The password migration preserves existing users by allowing a missing password hash. The seed updates its two development accounts with `SEED_PASSWORD`; other existing users cannot log in until they are given a password through an account recovery process.
 
-```json
-"prisma": {
-  "seed": "ts-node prisma/seed.ts"
-}
-```
-
-> **Prisma version:** these files target Prisma 6 (`url = env("DATABASE_URL")` in the datasource, `new PrismaClient()`). Prisma 7 and later changed how the client connects (driver adapters and a `prisma.config.ts`), so pin `prisma@6` and `@prisma/client@6` as shown above to match this code.
+> **Prisma version:** these files target Prisma 6 (`url = env("DATABASE_URL")` in the datasource, `new PrismaClient()`). Prisma 7 and later changed how the client connects (driver adapters and a `prisma.config.ts`), so the package manifest pins `prisma` and `@prisma/client` to v6.
 
 Useful commands: `npx prisma studio` opens a GUI to browse the data.
 

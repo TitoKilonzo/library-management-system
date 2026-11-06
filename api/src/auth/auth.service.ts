@@ -48,7 +48,9 @@ export class AuthService {
 
     // Same message for "no such user" and "wrong password" so the API doesn't
     // reveal which emails are registered.
-    const valid = found && (await bcrypt.compare(dto.password, found.password));
+    const valid = found?.password
+      ? await bcrypt.compare(dto.password, found.password)
+      : false;
     if (!found || !valid) {
       throw new UnauthorizedException('Invalid email or password');
     }
